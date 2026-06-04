@@ -1,4 +1,4 @@
-# wc26-oracle
+# FIFA World Cup 2026 Simulation
 
 A simulator for the 2026 World Cup. It plays the whole tournament out hundreds of thousands of times
 and turns that into one clear picture: how likely each of the 48 teams is to top its group, reach each
