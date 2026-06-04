@@ -240,7 +240,7 @@ fn bracket_svg(data: &Data, cfg: &Config, t: &Tally) -> String {
     let box_team = |team: Option<(usize, f64)>| -> (String, String) {
         match team {
             Some((idx, p)) => (data.teams[idx].code.clone(), format!("{p:.0}%")),
-            None => ("—".into(), String::new()),
+            None => ("·".into(), String::new()),
         }
     };
 
@@ -587,7 +587,7 @@ fn fixtures_section(data: &Data, cfg: &Config) -> String {
 
 fn predictions_section(data: &Data, played: &[Played], acc: &Option<Accuracy>) -> String {
     let Some(acc) = acc else {
-        return r#"<section class="analysis"><h2>Predictions vs Reality</h2><p class="sub empty">No matches played yet. Once results are entered, this tab scores how well the model called them — Brier score, skill %, and the biggest upsets.</p></section>"#.into();
+        return r#"<section class="analysis"><h2>Predictions vs Reality</h2><p class="sub empty">No matches played yet. Once results are entered, this tab scores how well the model called them: Brier score, skill %, and the biggest upsets.</p></section>"#.into();
     };
     let skill = (1.0 - acc.model_brier / acc.baseline_brier) * 100.0;
     let mut idx: Vec<usize> = (0..played.len()).collect();
@@ -720,18 +720,18 @@ pub fn build_html(
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>World Cup 2026 — Monte Carlo Simulation</title>
+<title>World Cup 2026 Simulation</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
   <h1>World Cup 2026</h1>
-  <p class="lead">How the 48 teams are likely to fare — the tournament played out {total_fmt} times, updated daily with real results.</p>
+  <p class="lead">How the 48 teams are likely to fare. The tournament played out {total_fmt} times, updated daily with the real results.</p>
   <p class="sub">{total_fmt} Monte Carlo simulations · Elo + form + Poisson · {played_n} real results in · {stages} saved stage(s)</p>
   <details class="about">
     <summary>How it works</summary>
-    <p>Each match is simulated from team strength — an <b>Elo rating</b> plus <b>recent form</b> — with goals drawn from a <b>Poisson</b> model (Dixon-Coles adjusted for realistic low scores). Team strength drifts as results come in, so momentum carries forward. Playing the whole tournament hundreds of thousands of times gives every team's chance at each stage. As real results are entered they are <b>fixed</b>, and only the rest is re-simulated.</p>
-    <p>The tabs: <b>Groups</b> — live tables, matchday fixtures and qualification odds · <b>Bracket</b> — the most likely knockout path · <b>Odds</b> — title probabilities for all 48 · <b>Path</b> — each team's likely opponents · <b>Fixtures</b> — predicted scorelines · <b>Accuracy</b> — how well the model called the games already played.</p>
+    <p>Each match is simulated from team strength (an <b>Elo rating</b> plus <b>recent form</b>), with goals drawn from a <b>Poisson</b> model that is Dixon-Coles adjusted for realistic low scores. Team strength drifts as results come in, so momentum carries forward. Playing the whole tournament hundreds of thousands of times gives every team's chance at each stage. As real results are entered they are <b>fixed</b>, and only the rest is re-simulated.</p>
+    <p>The tabs: <b>Groups</b> for live tables, matchday fixtures and qualification odds · <b>Bracket</b> for the most likely knockout path · <b>Odds</b> for title probabilities across all 48 · <b>Path</b> for each team's likely opponents · <b>Fixtures</b> for predicted scorelines · <b>Accuracy</b> for how well the model called the games already played.</p>
   </details>
 </header>
 <div class="tabs">

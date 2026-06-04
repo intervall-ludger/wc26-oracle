@@ -58,7 +58,7 @@ web/style.css        styles (report HTML is generated; index.html is gitignored)
 | `--form-weight`  | `1.0`                | Multiplier on each team's form value             |
 | `--dc-rho`       | `-0.10`              | Dixon-Coles low-score correlation (0 = off)      |
 | `--dyn-k`        | `8.0`                | In-tournament dynamic-Elo K-factor (0 = off)     |
-| `--dump-schedule`| —                    | Print determined fixtures as JSON, then exit     |
+| `--dump-schedule`| (none)               | Print determined fixtures as JSON, then exit     |
 
 Tune without rebuilding: `cargo run --release -- --supremacy 0.0024 --form-weight 1.5`
 
@@ -93,7 +93,7 @@ title-race chart and the Δ column. Re-running the same state just refreshes it;
    the shootout winner, and how it was decided,
 4. merges into `data/results.json`.
 
-Team mapping is by football-data's `tla`, falling back to a name alias table — all 48 teams resolve.
+Team mapping is by football-data's `tla`, falling back to a name alias table, and all 48 teams resolve.
 Without `FOOTBALL_DATA_KEY` the refresh is skipped and committed data is used. Local dev: put the key
 in a gitignored `.env` (`FOOTBALL_DATA_KEY=...`).
 
