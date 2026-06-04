@@ -1,0 +1,87 @@
+name: Simulate & Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      # Only re-run when inputs change — NOT when history.json is pushed back.
+      - "data/teams.json"
+      - "data/results.json"
+      - "data/opta.json"
+      - "src/**"
+      - "web/style.css"
+      - "Cargo.*"
+      - ".github/workflows/simulate.yml"
+  schedule:
+    # daily at 00:00 UTC — keeps the site fresh through the tournament
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+    inputs:
+      sims:
+        description: "Number of Monte-Carlo simulations"
+        default: "500000"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # football-data.org key. Without it the refresh is skipped and committed data is used.
+      FOOTBALL_DATA_KEY: ${{ secrets.FOOTBALL_DATA_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: cargo-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
+
+      - name: Build
+        run: cargo build --release
+
+      - name: Refresh results from football-data.org
+        run: python3 scripts/refresh.py
+
+      - name: Run simulation
+        run: ./target/release/wm2026 --sims "${{ github.event.inputs.sims || '500000' }}"
+
+      - name: Persist data (results + history)
+        run: |
+          if ! git diff --quiet -- data/results.json data/history.json; then
+            git config user.name "wc26-oracle-bot"
+            git config user.email "actions@users.noreply.github.com"
+            git add data/results.json data/history.json
+            git commit -m "Update results & title-race history [skip ci]"
+            git push origin HEAD:main
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4

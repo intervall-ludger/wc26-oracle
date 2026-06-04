@@ -1,0 +1,27 @@
+{
+  "source": "Opta supercomputer, 10,000 pre-tournament simulations (June 2026). Benchmark for comparison only.",
+  "win_pct": {
+    "ESP": 16.1,
+    "FRA": 13.0,
+    "ENG": 11.2,
+    "ARG": 10.4,
+    "POR": 7.0,
+    "BRA": 6.6,
+    "GER": 5.1,
+    "NED": 3.6,
+    "NOR": 3.5,
+    "BEL": 2.4,
+    "COL": 2.1,
+    "MAR": 1.9,
+    "CRO": 1.6,
+    "ECU": 1.4,
+    "USA": 1.2,
+    "MEX": 1.0,
+    "EGY": 0.4,
+    "AUS": 0.3,
+    "SCO": 0.2,
+    "RSA": 0.1,
+    "UZB": 0.1,
+    "JOR": 0.1
+  }
+}

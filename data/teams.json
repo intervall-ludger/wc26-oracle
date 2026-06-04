@@ -1,0 +1,65 @@
+{
+  "source": "Groups: FIFA 2026 final draw (5 Dec 2025). Elo: eloratings.net scale (~June 2026). Form: best-effort estimate from last ~5-6 internationals (some pre-tournament friendlies are speculative) -> Elo points, editable.",
+  "hosts": ["MEX", "CAN", "USA"],
+  "teams": [
+    { "name": "Mexico",                "code": "MEX", "group": "A", "pos": 1, "elo": 1868, "form": 23,  "form_last": "W W D D W", "form_note": "solid home form" },
+    { "name": "South Africa",          "code": "RSA", "group": "A", "pos": 2, "elo": 1517, "form": -14, "form_last": "D W W L L", "form_note": "mixed, AFCON R16 exit" },
+    { "name": "South Korea",           "code": "KOR", "group": "A", "pos": 3, "elo": 1756, "form": 5,   "form_last": "W L L W W", "form_note": "inconsistent friendlies" },
+    { "name": "Czechia",               "code": "CZE", "group": "A", "pos": 4, "elo": 1733, "form": 23,  "form_last": "W W W D D", "form_note": "unbeaten run" },
+
+    { "name": "Canada",                "code": "CAN", "group": "B", "pos": 1, "elo": 1793, "form": 23,  "form_last": "W D D W W", "form_note": "unbeaten last five" },
+    { "name": "Bosnia and Herzegovina","code": "BIH", "group": "B", "pos": 2, "elo": 1591, "form": -14, "form_last": "D D D D W", "form_note": "draw-heavy" },
+    { "name": "Qatar",                 "code": "QAT", "group": "B", "pos": 3, "elo": 1423, "form": -60, "form_last": "L L D L L", "form_note": "winless" },
+    { "name": "Switzerland",           "code": "SUI", "group": "B", "pos": 4, "elo": 1894, "form": 32,  "form_last": "W W W D W", "form_note": "strong warm-ups" },
+
+    { "name": "Brazil",                "code": "BRA", "group": "C", "pos": 1, "elo": 1988, "form": 23,  "form_last": "W W W L W", "form_note": "big friendly wins" },
+    { "name": "Morocco",               "code": "MAR", "group": "C", "pos": 2, "elo": 1822, "form": 41,  "form_last": "W W W D W", "form_note": "in-form, prolific" },
+    { "name": "Haiti",                 "code": "HAI", "group": "C", "pos": 3, "elo": 1532, "form": 14,  "form_last": "W D L W W", "form_note": "improving" },
+    { "name": "Scotland",              "code": "SCO", "group": "C", "pos": 4, "elo": 1770, "form": -23, "form_last": "W L L L W", "form_note": "shaky form" },
+
+    { "name": "United States",         "code": "USA", "group": "D", "pos": 1, "elo": 1733, "form": 5,   "form_last": "W L L W W", "form_note": "leaky defense, hosts" },
+    { "name": "Paraguay",              "code": "PAR", "group": "D", "pos": 2, "elo": 1833, "form": -14, "form_last": "W L D W D", "form_note": "limited recent data" },
+    { "name": "Australia",             "code": "AUS", "group": "D", "pos": 3, "elo": 1775, "form": -23, "form_last": "L L W W L", "form_note": "inconsistent" },
+    { "name": "Türkiye",               "code": "TUR", "group": "D", "pos": 4, "elo": 1906, "form": 41,  "form_last": "W D W W W", "form_note": "hot, won playoff" },
+
+    { "name": "Germany",               "code": "GER", "group": "E", "pos": 1, "elo": 1925, "form": 50,  "form_last": "W W W W W", "form_note": "five straight wins" },
+    { "name": "Curaçao",               "code": "CUW", "group": "E", "pos": 2, "elo": 1433, "form": -32, "form_last": "L L L D W", "form_note": "heavy defeats" },
+    { "name": "Ivory Coast",           "code": "CIV", "group": "E", "pos": 3, "elo": 1676, "form": 32,  "form_last": "W L W W W", "form_note": "excellent run" },
+    { "name": "Ecuador",               "code": "ECU", "group": "E", "pos": 4, "elo": 1935, "form": 5,   "form_last": "D W D D W", "form_note": "draw-prone, solid" },
+
+    { "name": "Netherlands",           "code": "NED", "group": "F", "pos": 1, "elo": 1961, "form": 14,  "form_last": "L W D W W", "form_note": "lost to Algeria" },
+    { "name": "Japan",                 "code": "JPN", "group": "F", "pos": 2, "elo": 1906, "form": 59,  "form_last": "W W W W W", "form_note": "perfect, beat England" },
+    { "name": "Sweden",                "code": "SWE", "group": "F", "pos": 3, "elo": 1714, "form": -14, "form_last": "L D W W L", "form_note": "leaky, via playoff" },
+    { "name": "Tunisia",               "code": "TUN", "group": "F", "pos": 4, "elo": 1633, "form": 14,  "form_last": "L D W W W", "form_note": "solid, conceding zero" },
+
+    { "name": "Belgium",               "code": "BEL", "group": "G", "pos": 1, "elo": 1866, "form": 23,  "form_last": "W D W W D", "form_note": "strong attack" },
+    { "name": "Egypt",                 "code": "EGY", "group": "G", "pos": 2, "elo": 1699, "form": 23,  "form_last": "W D W W D", "form_note": "good warm-ups, Salah" },
+    { "name": "Iran",                  "code": "IRN", "group": "G", "pos": 3, "elo": 1764, "form": 23,  "form_last": "W W W D W", "form_note": "strong qualifying" },
+    { "name": "New Zealand",           "code": "NZL", "group": "G", "pos": 4, "elo": 1585, "form": -50, "form_last": "L L L W L", "form_note": "poor, thrashed by Haiti" },
+
+    { "name": "Spain",                 "code": "ESP", "group": "H", "pos": 1, "elo": 2165, "form": 23,  "form_last": "W D W W D", "form_note": "unbeaten, NL holders" },
+    { "name": "Cape Verde",            "code": "CPV", "group": "H", "pos": 2, "elo": 1576, "form": 32,  "form_last": "W W W W D", "form_note": "historic qualification" },
+    { "name": "Saudi Arabia",          "code": "KSA", "group": "H", "pos": 3, "elo": 1566, "form": -60, "form_last": "L L L L D", "form_note": "winless, conceding heavily" },
+    { "name": "Uruguay",               "code": "URU", "group": "H", "pos": 4, "elo": 1892, "form": -41, "form_last": "D D L D D", "form_note": "toothless, Bielsa pressure" },
+
+    { "name": "France",                "code": "FRA", "group": "I", "pos": 1, "elo": 2081, "form": 41,  "form_last": "W W W W D", "form_note": "in-form, won group" },
+    { "name": "Senegal",               "code": "SEN", "group": "I", "pos": 2, "elo": 1866, "form": 32,  "form_last": "L W W W W", "form_note": "strong" },
+    { "name": "Iraq",                  "code": "IRQ", "group": "I", "pos": 3, "elo": 1608, "form": 5,   "form_last": "W L L W W", "form_note": "won intercontinental playoff" },
+    { "name": "Norway",                "code": "NOR", "group": "I", "pos": 4, "elo": 1917, "form": 14,  "form_last": "W W L D W", "form_note": "Haaland-led, beat Sweden" },
+
+    { "name": "Argentina",             "code": "ARG", "group": "J", "pos": 1, "elo": 2113, "form": 14,  "form_last": "W L W D W", "form_note": "champions, lost to Ecuador" },
+    { "name": "Algeria",               "code": "ALG", "group": "J", "pos": 2, "elo": 1743, "form": 23,  "form_last": "W D W W D", "form_note": "beat Netherlands" },
+    { "name": "Austria",               "code": "AUT", "group": "J", "pos": 3, "elo": 1830, "form": 14,  "form_last": "W W W L D", "form_note": "good run, Rangnick" },
+    { "name": "Jordan",                "code": "JOR", "group": "J", "pos": 4, "elo": 1685, "form": -23, "form_last": "L D D L L", "form_note": "struggles scoring" },
+
+    { "name": "Portugal",              "code": "POR", "group": "K", "pos": 1, "elo": 1984, "form": -5,  "form_last": "D L W D W", "form_note": "patchy, NL holders" },
+    { "name": "DR Congo",              "code": "COD", "group": "K", "pos": 2, "elo": 1655, "form": 14,  "form_last": "W W L W D", "form_note": "won playoff over Jamaica" },
+    { "name": "Uzbekistan",            "code": "UZB", "group": "K", "pos": 3, "elo": 1718, "form": 14,  "form_last": "W L W D W", "form_note": "solid debutants" },
+    { "name": "Colombia",              "code": "COL", "group": "K", "pos": 4, "elo": 1977, "form": 5,   "form_last": "W W L L W", "form_note": "rebounded vs Costa Rica" },
+
+    { "name": "England",               "code": "ENG", "group": "L", "pos": 1, "elo": 2020, "form": 14,  "form_last": "L D W W W", "form_note": "wobbles under Tuchel" },
+    { "name": "Croatia",               "code": "CRO", "group": "L", "pos": 2, "elo": 1930, "form": -14, "form_last": "L L W D W", "form_note": "mixed, lost to Belgium" },
+    { "name": "Ghana",                 "code": "GHA", "group": "L", "pos": 3, "elo": 1503, "form": -60, "form_last": "D L L L L", "form_note": "dismal, new coach" },
+    { "name": "Panama",                "code": "PAN", "group": "L", "pos": 4, "elo": 1733, "form": 23,  "form_last": "L W W W W", "form_note": "unbeaten qualifying" }
+  ]
+}

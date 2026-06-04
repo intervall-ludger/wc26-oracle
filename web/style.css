@@ -1,0 +1,239 @@
+:root {
+  --bg: #0e1116;
+  --surface: #161b22;
+  --line: #21262d;
+  --line2: #2c333d;
+  --text: #e6edf3;
+  --muted: #848d97;
+  --faint: #4a525c;
+  --accent: #46a77a;
+  --accent-rgb: 70, 167, 122;
+  --down: #cf6b6b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  font-size: 15px;
+  overflow-x: hidden; /* wide content scrolls in its own container, never the whole page */
+}
+
+/* horizontal scroll container for wide tables */
+.tw { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+:root { --pad: clamp(0.9rem, 3vw, 3rem); }
+header, main, .tabbar { width: 100%; }
+header, main { padding-left: var(--pad); padding-right: var(--pad); }
+
+header { padding-top: clamp(1.4rem, 4vw, 2.4rem); padding-bottom: 1.1rem; }
+h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.sub { margin: .35rem 0 0; color: var(--muted); font-size: .85rem; }
+
+/* --- tabs (CSS-only radio) --- */
+.tabs > input { position: absolute; opacity: 0; pointer-events: none; }
+
+.tabbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  gap: 2px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  padding-left: calc(var(--pad) - 9px);
+  padding-right: var(--pad);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabbar::-webkit-scrollbar { display: none; }
+.tabbar label {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  padding: 11px 15px;
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.tabbar label:hover { color: var(--text); }
+
+.panel { display: none; }
+#tab-bracket:checked  ~ .tabbar label[for=tab-bracket],
+#tab-groups:checked   ~ .tabbar label[for=tab-groups],
+#tab-odds:checked     ~ .tabbar label[for=tab-odds],
+#tab-path:checked     ~ .tabbar label[for=tab-path],
+#tab-fixtures:checked  ~ .tabbar label[for=tab-fixtures],
+#tab-accuracy:checked ~ .tabbar label[for=tab-accuracy] {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+#tab-bracket:checked  ~ main #p-bracket,
+#tab-groups:checked   ~ main #p-groups,
+#tab-odds:checked     ~ main #p-odds,
+#tab-path:checked     ~ main #p-path,
+#tab-fixtures:checked  ~ main #p-fixtures,
+#tab-accuracy:checked ~ main #p-accuracy { display: block; }
+
+/* path explorer cells */
+td.pc { text-align: left; color: var(--text); white-space: nowrap; }
+td.pc small { color: #b7c0ca; font-size: .7rem; margin-left: .2rem; }
+
+main { padding-top: 1.4rem; padding-bottom: 3rem; }
+section { margin-bottom: 2.2rem; }
+
+h2 { font-size: 1.02rem; font-weight: 600; margin: 0 0 .15rem; }
+
+/* --- tables --- */
+table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+thead th {
+  position: sticky; top: 41px;
+  background: var(--bg);
+  color: var(--muted);
+  font-weight: 600;
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  text-align: right;
+  padding: .5rem .55rem;
+  border-bottom: 1px solid var(--line2);
+  white-space: nowrap;
+}
+tbody td {
+  padding: .42rem .55rem;
+  text-align: right;
+  border-bottom: 1px solid var(--line);
+  font-variant-numeric: tabular-nums;
+}
+tbody tr:hover { background: rgba(255, 255, 255, .025); }
+
+th.tm, td.tm { text-align: left; }
+th.g, td.g, .rk, .elo { text-align: center; }
+.rk { color: var(--faint); width: 2rem; }
+.tm { min-width: 12rem; }
+.nm { font-weight: 500; }
+.g { color: var(--muted); }
+.elo { color: var(--muted); font-size: .8rem; }
+.form, th.form { font-size: .8rem; }
+.cd { color: var(--faint); font-size: .72rem; }
+td.opta, th.opta { color: var(--muted); }
+.up { color: var(--accent); }
+.down { color: var(--down); }
+td.z { color: var(--faint); }
+
+/* heat-shaded probability cell */
+.ht, th.ht { text-align: center; width: 2.7rem; }
+td.ht { color: var(--text); }
+
+.note { color: var(--muted); font-size: .78rem; margin-top: 1rem; max-width: 60ch; }
+
+/* --- title race chart --- */
+.chart {
+  width: 100%; height: auto; max-width: 1100px; margin-top: .6rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.chart .grid { stroke: var(--line); stroke-width: 1; }
+.chart .yl { fill: var(--muted); font-size: 10px; text-anchor: end; }
+.chart .xl { fill: var(--muted); font-size: 11px; text-anchor: middle; }
+.chart .ll { font-size: 11px; font-weight: 600; }
+
+/* --- bracket --- */
+.bracket-scroll { overflow-x: auto; margin-top: .6rem; }
+.bracket {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  width: 100%;
+  min-width: 900px;
+  max-width: 1400px;
+  display: block;
+}
+.bracket .bh { fill: var(--muted); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; text-anchor: middle; }
+.bracket .bc { fill: none; stroke: var(--line2); stroke-width: 1; }
+.bracket rect { fill: #1b212a; stroke: var(--line2); stroke-width: 1; }
+.bracket text { fill: var(--text); font-size: 11px; }
+.bracket .bn { font-weight: 600; }
+.bracket .bp { fill: var(--muted); font-size: 10px; }
+.bracket .bwin rect { fill: #1c242e; }
+.bracket .bchamp rect { fill: rgba(var(--accent-rgb), .16); stroke: var(--accent); }
+.bracket .bchamp .bn { fill: var(--accent); }
+.bracket .bs { fill: var(--faint); font-size: 10px; font-weight: 600; text-anchor: middle; }
+.bracket .bs.played { fill: var(--accent); }
+
+/* --- group cards --- */
+.groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+  margin-top: .8rem;
+}
+.gcard {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 14px 6px;
+}
+.ghead {
+  font-weight: 600; font-size: .72rem; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--muted); margin-bottom: .3rem;
+}
+.gtab { width: 100%; border-collapse: collapse; font-size: .82rem; }
+.gtab th {
+  position: static; background: none; border-bottom: 1px solid var(--line2);
+  padding: 2px 6px 5px;
+}
+.gtab td { padding: 6px; border-bottom: 1px solid var(--line); }
+.gtab tr:last-child td { border-bottom: 0; }
+.gtab .gp, .gtab th.gp { width: 1.3rem; text-align: center; color: var(--faint); }
+.gtab .gt, .gtab th.gt { text-align: left; font-weight: 500; white-space: nowrap; }
+.gtab .gpts, .gtab th.gpts { font-weight: 700; }
+.gtab tr.q1 .gp { color: var(--accent); box-shadow: inset 2px 0 0 var(--accent); }
+.gtab tr.qo { color: var(--muted); }
+.gtab tr.qo .gpts { font-weight: 500; }
+
+/* matchday schedule inside a group card */
+.gsched { margin-top: .55rem; border-top: 1px solid var(--line); padding-top: .5rem; }
+.md { margin-bottom: .45rem; }
+.md:last-child { margin-bottom: .1rem; }
+.mdl { font-size: .6rem; text-transform: uppercase; letter-spacing: .07em; color: var(--faint); }
+.mr {
+  display: grid;
+  grid-template-columns: 1fr 2.6rem 1fr;
+  gap: .3rem;
+  align-items: baseline;
+  font-size: .76rem;
+  padding: 3px 0;
+}
+.md { margin-bottom: .6rem; }
+.mr .mh { text-align: right; color: var(--muted); }
+.mr .ma { text-align: left; color: var(--muted); }
+.mr .ms { text-align: center; font-variant-numeric: tabular-nums; color: var(--faint); }
+.mr .ms.done { color: var(--accent); font-weight: 600; }
+
+/* --- predictions / fixtures --- */
+.analysis .st, .analysis th.st { text-align: left; color: var(--muted); font-size: .75rem; white-space: nowrap; }
+.analysis .sc { text-align: center; font-weight: 600; }
+.analysis .sc.done { color: var(--accent); }
+.analysis .pa, .analysis th.pa { font-weight: 600; }
+.sub.empty { padding: 1.2rem 0; }
+
+@media (max-width: 640px) {
+  .elo, th.elo { display: none; }
+  table { font-size: .8rem; }
+  h1 { font-size: 1.3rem; }
+  .tabbar label { padding: 11px 9px; font-size: .72rem; letter-spacing: 0; }
+}

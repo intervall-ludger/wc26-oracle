@@ -1,0 +1,6 @@
+/target
+web/index.html
+.claude/
+.env*
+__pycache__/
+*.pyc
