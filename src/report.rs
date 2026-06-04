@@ -12,6 +12,20 @@ fn pct(n: u64, total: u64) -> f64 {
     if total == 0 { 0.0 } else { 100.0 * n as f64 / total as f64 }
 }
 
+/// Format an integer with thousands separators (e.g. 200000 -> "200,000").
+fn thousands(n: u64) -> String {
+    let s = n.to_string();
+    let bytes = s.as_bytes();
+    let mut out = String::with_capacity(s.len() + s.len() / 3);
+    for (i, b) in bytes.iter().enumerate() {
+        if i > 0 && (bytes.len() - i) % 3 == 0 {
+            out.push(',');
+        }
+        out.push(*b as char);
+    }
+    out
+}
+
 /// Heat-shaded probability cell (single accent hue, alpha ∝ probability). p in 0..100.
 fn heat(p: f64) -> String {
     if p <= 0.0 {
@@ -693,6 +707,7 @@ pub fn build_html(
     let bracket = bracket_svg(data, cfg, t);
     let played_n = data.results.len();
     let stages = hist.snapshots.len();
+    let total_fmt = thousands(total);
     // phase-aware default tab: Groups during the group stage, Bracket once the knockouts are set
     let group_played = data.results.keys().filter(|k| k.contains(':')).count();
     let ko_started = group_played >= 72 || data.results.keys().any(|k| k.starts_with('M'));
@@ -711,7 +726,13 @@ pub fn build_html(
 <body>
 <header>
   <h1>World Cup 2026</h1>
-  <p class="sub">{total} Monte Carlo simulations · Elo + form + Poisson · {played_n} real results in · {stages} saved stage(s)</p>
+  <p class="lead">How the 48 teams are likely to fare — the tournament played out {total_fmt} times, updated daily with real results.</p>
+  <p class="sub">{total_fmt} Monte Carlo simulations · Elo + form + Poisson · {played_n} real results in · {stages} saved stage(s)</p>
+  <details class="about">
+    <summary>How it works</summary>
+    <p>Each match is simulated from team strength — an <b>Elo rating</b> plus <b>recent form</b> — with goals drawn from a <b>Poisson</b> model (Dixon-Coles adjusted for realistic low scores). Team strength drifts as results come in, so momentum carries forward. Playing the whole tournament hundreds of thousands of times gives every team's chance at each stage. As real results are entered they are <b>fixed</b>, and only the rest is re-simulated.</p>
+    <p>The tabs: <b>Groups</b> — live tables, matchday fixtures and qualification odds · <b>Bracket</b> — the most likely knockout path · <b>Odds</b> — title probabilities for all 48 · <b>Path</b> — each team's likely opponents · <b>Fixtures</b> — predicted scorelines · <b>Accuracy</b> — how well the model called the games already played.</p>
+  </details>
 </header>
 <div class="tabs">
 <input type="radio" name="tab" id="tab-groups"{ck_groups}>

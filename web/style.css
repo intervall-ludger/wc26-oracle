@@ -37,7 +37,20 @@ h1 {
   font-weight: 600;
   letter-spacing: -0.01em;
 }
+.lead { margin: .5rem 0 0; font-size: 1.02rem; max-width: 70ch; }
 .sub { margin: .35rem 0 0; color: var(--muted); font-size: .85rem; }
+
+.about { margin-top: .7rem; max-width: 75ch; }
+.about summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-size: .82rem;
+  font-weight: 600;
+  width: max-content;
+}
+.about summary:hover { text-decoration: underline; }
+.about p { margin: .6rem 0 0; color: var(--muted); font-size: .85rem; }
+.about b { color: var(--text); font-weight: 600; }
 
 /* --- tabs (CSS-only radio) --- */
 .tabs > input { position: absolute; opacity: 0; pointer-events: none; }
