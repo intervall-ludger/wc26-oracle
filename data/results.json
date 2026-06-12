@@ -1,4 +1,10 @@
 {
   "_help": "Enter actual results here as they happen, then re-run the sim. Group match id = '<GROUP>:<homePos>v<awayPos>' (e.g. 'A:1v2'). Knockout id = 'M<number>' (M73..M104). 'winner' is only needed for knockout draws decided on penalties: 'home' or 'away'.",
-  "results": []
+  "results": [
+    {
+      "match": "A:1v2",
+      "home": 2,
+      "away": 0
+    }
+  ]
 }
