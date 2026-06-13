@@ -5,6 +5,21 @@
       "match": "A:1v2",
       "home": 2,
       "away": 0
+    },
+    {
+      "match": "A:3v4",
+      "home": 2,
+      "away": 1
+    },
+    {
+      "match": "B:1v2",
+      "home": 1,
+      "away": 1
+    },
+    {
+      "match": "D:1v2",
+      "home": 4,
+      "away": 1
     }
   ]
 }
