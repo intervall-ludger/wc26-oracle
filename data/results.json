@@ -17,6 +17,21 @@
       "away": 1
     },
     {
+      "match": "B:3v4",
+      "home": 1,
+      "away": 1
+    },
+    {
+      "match": "C:1v2",
+      "home": 1,
+      "away": 1
+    },
+    {
+      "match": "C:3v4",
+      "home": 0,
+      "away": 1
+    },
+    {
       "match": "D:1v2",
       "home": 4,
       "away": 1
