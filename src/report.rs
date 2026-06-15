@@ -1,7 +1,7 @@
 use crate::analysis::{Accuracy, Played};
 use crate::history::History;
 use crate::model::Data;
-use crate::sim::{likely_score, match_odds, Config, Tally};
+use crate::sim::{expected_goals, match_odds, Config, Tally};
 use std::collections::HashMap;
 
 const PALETTE: [&str; 8] = [
@@ -187,7 +187,7 @@ fn round_col(id: u32) -> usize {
     }
 }
 
-fn bracket_svg(data: &Data, cfg: &Config, t: &Tally) -> String {
+fn bracket_svg(data: &Data, t: &Tally) -> String {
     let ch = bracket_children();
     let mut order: Vec<(u32, bool)> = Vec::new();
     collect_leaves(104, &ch, &mut order);
@@ -291,36 +291,23 @@ fn bracket_svg(data: &Data, cfg: &Config, t: &Tally) -> String {
         s.push_str(&draw_box(x(round_col(km.id)), y_mid(center_idx(km.id)), &code, &pct, cls));
     }
 
-    // most likely scoreline of each match, at its connector merge point
+    // actual result (with how it was decided) for played ties, at the connector merge point
     for km in crate::bracket::knockout() {
-        let (pa, pb) = if (73..=88).contains(&km.id) {
-            (modal(&t.slot_a[&km.id], t.sims), modal(&t.slot_b[&km.id], t.sims))
-        } else {
-            let (ca, cb) = ch[&km.id];
-            let feed = |c: Child| if let Child::Match(x) = c { modal(&t.win[&x], t.sims) } else { None };
-            (feed(ca), feed(cb))
+        let Some(r) = data.results.get(&format!("M{}", km.id)) else {
+            continue;
         };
-        if let (Some((ai, _)), Some((bi, _))) = (pa, pb) {
-            // actual result (with how it was decided) if played, else the most likely scoreline
-            let (label, cls) = match data.results.get(&format!("M{}", km.id)) {
-                Some(r) => {
-                    let tag = match r.decided.as_deref() {
-                        Some("aet") => " a.e.t.",
-                        Some("pens") => " pens",
-                        _ => "",
-                    };
-                    (format!("{}–{}{tag}", r.home, r.away), "bs played")
-                }
-                None => {
-                    let (gh, gv) = likely_score(data, cfg, ai, bi);
-                    (format!("{gh}–{gv}"), "bs")
-                }
-            };
-            let col = round_col(km.id);
-            let mx = (x(col - 1) + box_w + x(col)) / 2.0;
-            let my = y_mid(center_idx(km.id)) + box_h / 2.0 + 4.0;
-            s.push_str(&format!("<text x=\"{mx:.1}\" y=\"{my:.1}\" class=\"{cls}\">{label}</text>"));
-        }
+        let tag = match r.decided.as_deref() {
+            Some("aet") => " a.e.t.",
+            Some("pens") => " pens",
+            _ => "",
+        };
+        let col = round_col(km.id);
+        let mx = (x(col - 1) + box_w + x(col)) / 2.0;
+        let my = y_mid(center_idx(km.id)) + box_h / 2.0 + 4.0;
+        s.push_str(&format!(
+            "<text x=\"{mx:.1}\" y=\"{my:.1}\" class=\"bs played\">{}–{}{tag}</text>",
+            r.home, r.away
+        ));
     }
 
     s.push_str("</svg>");
@@ -445,8 +432,8 @@ fn groups_section(data: &Data, cfg: &Config, t: &Tally) -> String {
                 let (score, cls) = match data.results.get(&id) {
                     Some(r) => (format!("{}–{}", r.home, r.away), " done"),
                     None => {
-                        let (gh, gv) = likely_score(data, cfg, home, away);
-                        (format!("{gh}–{gv}"), "")
+                        let (gh, gv) = expected_goals(data, cfg, home, away);
+                        (format!("{gh:.1}–{gv:.1}"), "")
                     }
                 };
                 sched.push_str(&format!(
@@ -544,38 +531,63 @@ fn path_section(data: &Data, t: &Tally) -> String {
     )
 }
 
-fn fixtures_section(data: &Data, cfg: &Config) -> String {
+/// "2026-06-11T19:00:00Z" -> "11 Jun 19:00" (UTC). Empty string if unparsable.
+fn fmt_kickoff(iso: &str) -> String {
+    const MONTHS: [&str; 13] = [
+        "", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    ];
+    if iso.len() < 16 || iso.as_bytes()[4] != b'-' {
+        return String::new();
+    }
+    let mon: usize = iso[5..7].parse().unwrap_or(0);
+    let day = iso[8..10].trim_start_matches('0');
+    let hhmm = &iso[11..16];
+    format!("{day} {} {hhmm}", MONTHS.get(mon).copied().unwrap_or(""))
+}
+
+fn fixtures_section(data: &Data, cfg: &Config, schedule: &HashMap<String, String>) -> String {
     use crate::bracket::{all_groups, group_match_id, GROUP_FIXTURES};
-    let mut rows = String::new();
-    for g in all_groups() {
-        let teams = data.group_teams(g);
-        for (md, &(hp, ap)) in GROUP_FIXTURES.iter().enumerate() {
-            let (home, away) = (teams[hp - 1], teams[ap - 1]);
-            let id = group_match_id(g, hp, ap);
-            let o = match_odds(data, cfg, home, away);
-            let (score, cls) = match data.results.get(&id) {
-                Some(r) => (format!("{}–{} ✓", r.home, r.away), "sc done"),
-                None => {
-                    let (gh, gv) = likely_score(data, cfg, home, away);
-                    (format!("{gh}–{gv}"), "sc")
-                }
-            };
-            rows.push_str(&format!(
-                "<tr><td class=\"st\">{g} · MD{}</td><td class=\"tm\">{}</td><td class=\"{cls}\">{score}</td><td class=\"tm\">{}</td><td>{:.0}</td><td>{:.0}</td><td>{:.0}</td></tr>\n",
-                (md / 2) + 1,
-                data.teams[home].name,
-                data.teams[away].name,
-                o.home * 100.0, o.draw * 100.0, o.away * 100.0,
-            ));
+    let mut entries: Vec<(String, String)> = Vec::new(); // (sort key, row html)
+    for md in 0..3 {
+        for g in all_groups() {
+            let teams = data.group_teams(g);
+            for (slot, &(hp, ap)) in GROUP_FIXTURES[md * 2..md * 2 + 2].iter().enumerate() {
+                let (home, away) = (teams[hp - 1], teams[ap - 1]);
+                let id = group_match_id(g, hp, ap);
+                let o = match_odds(data, cfg, home, away);
+                let (gh, gv) = expected_goals(data, cfg, home, away);
+                let xg = format!("<span class=\"xg\">xG {gh:.1}–{gv:.1}</span>");
+                let inner = match data.results.get(&id) {
+                    Some(r) => format!("<span class=\"real\">{}–{} ✓</span>{xg}", r.home, r.away),
+                    None => xg,
+                };
+                let score = format!("<div class=\"two\">{inner}</div>");
+                let cls = "sc";
+                // sort by real kickoff if known, else keep matchday/group order (after dated ones)
+                let (sort_key, when) = match schedule.get(&id) {
+                    Some(iso) => (iso.clone(), fmt_kickoff(iso)),
+                    None => (format!("9999-{md}-{g}-{slot}"), String::new()),
+                };
+                let row = format!(
+                    "<tr><td class=\"ko\">{when}</td><td class=\"st\">MD{} · {g}</td><td class=\"tm\">{}</td><td class=\"{cls}\">{score}</td><td class=\"tm\">{}</td><td>{:.0}</td><td>{:.0}</td><td>{:.0}</td></tr>\n",
+                    md + 1,
+                    data.teams[home].name,
+                    data.teams[away].name,
+                    o.home * 100.0, o.draw * 100.0, o.away * 100.0,
+                );
+                entries.push((sort_key, row));
+            }
         }
     }
+    entries.sort_by(|a, b| a.0.cmp(&b.0));
+    let rows: String = entries.into_iter().map(|(_, r)| r).collect();
     format!(
         r#"<section class="analysis">
-<h2>Most Likely Results</h2>
-<p class="sub">Most probable scoreline for every group match (mode of the Poisson model), plus home/draw/away odds. Played matches show the real result (✓).</p>
+<h2>Fixtures</h2>
+<p class="sub">Every group match in kickoff order (times in UTC). Each fixture shows the model's <b>expected goals</b> (xG); played matches show the real result on top so you can compare. Home/draw/away odds on the right.</p>
 <div class="tw">
 <table>
-<thead><tr><th class="st">Match</th><th class="tm">Home</th><th class="sc">Score</th><th class="tm">Away</th><th>H%</th><th>D%</th><th>A%</th></tr></thead>
+<thead><tr><th class="ko">Kick-off</th><th class="st">Match</th><th class="tm">Home</th><th class="sc">Result / xG</th><th class="tm">Away</th><th>H%</th><th>D%</th><th>A%</th></tr></thead>
 <tbody>
 {rows}</tbody>
 </table>
@@ -639,6 +651,7 @@ pub fn build_html(
     cfg: &Config,
     t: &Tally,
     opta: &HashMap<String, f64>,
+    schedule: &HashMap<String, String>,
     hist: &History,
     played: &[Played],
     acc: &Option<Accuracy>,
@@ -701,10 +714,10 @@ pub fn build_html(
         format!("<section class=\"chart-wrap\"><h2>Title Race</h2><p class=\"sub\">Championship probability of the current top 6 across saved stages.</p>{chart}</section>")
     };
     let predictions = predictions_section(data, played, acc);
-    let fixtures = fixtures_section(data, cfg);
+    let fixtures = fixtures_section(data, cfg, schedule);
     let groups = groups_section(data, cfg, t);
     let path = path_section(data, t);
-    let bracket = bracket_svg(data, cfg, t);
+    let bracket = bracket_svg(data, t);
     let played_n = data.results.len();
     let stages = hist.snapshots.len();
     let total_fmt = thousands(total);
@@ -753,7 +766,7 @@ pub fn build_html(
 <div class="panel" id="p-bracket">
 <section class="bracket-wrap">
 <h2>Projected Bracket</h2>
-<p class="sub">Most likely team in each slot with its probability of reaching it, plus the most likely scoreline of each tie. Fixed once real results are in; the rest follows the simulation. Scroll sideways on mobile.</p>
+<p class="sub">Most likely team in each slot with its probability of reaching it. Played ties show the real result (90', a.e.t. or pens); the rest follows the simulation. Scroll sideways on mobile.</p>
 <div class="bracket-scroll">{bracket}</div>
 </section>
 {chart_block}

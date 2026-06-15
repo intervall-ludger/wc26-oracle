@@ -60,13 +60,13 @@ jobs:
       - name: Run simulation
         run: ./target/release/wm2026 --sims "${{ github.event.inputs.sims || '500000' }}"
 
-      - name: Persist data (results + history)
+      - name: Persist data (results + schedule + history)
         run: |
-          if ! git diff --quiet -- data/results.json data/history.json; then
+          if ! git diff --quiet -- data/results.json data/schedule.json data/history.json; then
             git config user.name "wc26-oracle-bot"
             git config user.email "actions@users.noreply.github.com"
-            git add data/results.json data/history.json
-            git commit -m "Update results & title-race history [skip ci]"
+            git add data/results.json data/schedule.json data/history.json
+            git commit -m "Update results, schedule & title-race history [skip ci]"
             git push origin HEAD:main
           fi
 

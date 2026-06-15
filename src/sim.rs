@@ -161,10 +161,9 @@ fn factorial(k: i32) -> f64 {
     (1..=k).fold(1.0, |acc, x| acc * x as f64)
 }
 
-/// Most likely exact scoreline = mode of each side's Poisson (floor of its expected goals).
-pub fn likely_score(data: &Data, cfg: &Config, a: usize, b: usize) -> (u32, u32) {
-    let (la, lb) = lambdas(data, cfg, &[], a, b);
-    (la.floor() as u32, lb.floor() as u32)
+/// Expected goals for both sides (the model's headline prediction for a fixture).
+pub fn expected_goals(data: &Data, cfg: &Config, a: usize, b: usize) -> (f64, f64) {
+    lambdas(data, cfg, &[], a, b)
 }
 
 /// Sample (or look up actual) score, Dixon-Coles adjusted via rejection sampling.

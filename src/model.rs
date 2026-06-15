@@ -83,6 +83,14 @@ impl Data {
         }
     }
 
+    /// Kickoff times (match id -> ISO-8601 UTC) for ordering and display. Empty if file missing.
+    pub fn load_schedule(path: &str) -> HashMap<String, String> {
+        std::fs::read_to_string(path)
+            .ok()
+            .and_then(|raw| serde_json::from_str::<HashMap<String, String>>(&raw).ok())
+            .unwrap_or_default()
+    }
+
     /// Optional Opta benchmark win-% keyed by team code. Empty if file missing.
     pub fn load_opta(path: &str) -> HashMap<String, f64> {
         #[derive(Deserialize)]

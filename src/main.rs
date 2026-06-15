@@ -81,10 +81,11 @@ fn main() {
     }
 
     let opta = Data::load_opta(&arg_value("--opta", "data/opta.json"));
+    let schedule = Data::load_schedule(&arg_value("--schedule", "data/schedule.json"));
     let played = analysis::played_matches(&data, &cfg);
     let acc = analysis::accuracy(&played);
 
-    let html = report::build_html(&data, &cfg, &tally, &opta, &hist, &played, &acc);
+    let html = report::build_html(&data, &cfg, &tally, &opta, &schedule, &hist, &played, &acc);
     if let Some(parent) = Path::new(&out_path).parent() {
         std::fs::create_dir_all(parent).ok();
     }

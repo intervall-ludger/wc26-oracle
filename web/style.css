@@ -238,9 +238,13 @@ td.ht { color: var(--text); }
 .mr .ms.done { color: var(--accent); font-weight: 600; }
 
 /* --- predictions / fixtures --- */
+.analysis .ko, .analysis th.ko { text-align: left; color: var(--muted); font-size: .76rem; white-space: nowrap; }
 .analysis .st, .analysis th.st { text-align: left; color: var(--muted); font-size: .75rem; white-space: nowrap; }
 .analysis .sc { text-align: center; font-weight: 600; }
 .analysis .sc.done { color: var(--accent); }
+.analysis .sc .two { display: flex; flex-direction: column; align-items: center; line-height: 1.2; }
+.analysis .sc .real { color: var(--accent); font-weight: 600; white-space: nowrap; }
+.analysis .sc .xg { color: var(--muted); font-weight: 400; font-size: .72rem; white-space: nowrap; }
 .analysis .pa, .analysis th.pa { font-weight: 600; }
 .sub.empty { padding: 1.2rem 0; }
 

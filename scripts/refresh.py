@@ -11,6 +11,7 @@ API_URL = "https://api.football-data.org/v4/competitions/WC/matches"
 SEASON = os.environ.get("WC_SEASON", "")  # optional ?season=YYYY (start year); empty = current edition
 BINARY = os.environ.get("WM_BINARY", "./target/release/wm2026")
 RESULTS_PATH = os.environ.get("WM_RESULTS", "data/results.json")
+SCHEDULE_PATH = os.environ.get("WM_SCHEDULE", "data/schedule.json")
 
 # our team code -> accepted names (matched accent/case-insensitively; tla is tried first)
 ALIASES = {
@@ -94,16 +95,20 @@ def main() -> int:
     schedule = load_schedule()
     existing = json.loads(open(RESULTS_PATH).read())
     by_id = {r["match"]: r for r in existing.get("results", [])}
+    kickoffs: dict[str, str] = {}
 
     changed, unmapped = 0, []
     for m in matches:
+        hc, ac = team_code(m.get("homeTeam", {})), team_code(m.get("awayTeam", {}))
+        fx = schedule.get(frozenset((hc, ac))) if hc and ac else None
+        # record kickoff time for every mapped fixture (played or not)
+        if fx and m.get("utcDate"):
+            kickoffs[fx[0]] = m["utcDate"]
         if m.get("status") != "FINISHED":
             continue
-        hc, ac = team_code(m.get("homeTeam", {})), team_code(m.get("awayTeam", {}))
         if not hc or not ac:
             unmapped.append(f"{m.get('homeTeam', {}).get('name')} vs {m.get('awayTeam', {}).get('name')}")
             continue
-        fx = schedule.get(frozenset((hc, ac)))
         ft = m.get("score", {}).get("fullTime", {})
         if not fx or ft.get("home") is None or ft.get("away") is None:
             continue
@@ -129,9 +134,11 @@ def main() -> int:
 
     existing["results"] = sorted(by_id.values(), key=lambda r: r["match"])
     open(RESULTS_PATH, "w").write(json.dumps(existing, indent=2) + "\n")
+    if kickoffs:
+        open(SCHEDULE_PATH, "w").write(json.dumps(dict(sorted(kickoffs.items())), indent=2) + "\n")
     if unmapped:
         print(f"unmapped ({len(unmapped)}): {unmapped[:5]}")
-    print(f"refresh done — {len(by_id)} results on file, {changed} added/changed.")
+    print(f"refresh done — {len(by_id)} results, {changed} changed, {len(kickoffs)} kickoff times.")
     return 0
 
 

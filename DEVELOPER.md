@@ -20,6 +20,7 @@ data/
   teams.json    48 teams: code, group, draw position, elo, form (+ form notes)
   results.json  real results entered/auto-pulled so far
   opta.json     Opta benchmark title odds (comparison only)
+  schedule.json kickoff times per match id (drives fixture ordering + date/time display)
   history.json  saved snapshots (committed back by CI)
 scripts/refresh.py   pulls finished matches from football-data.org into results.json
 web/style.css        styles (report HTML is generated; index.html is gitignored)
