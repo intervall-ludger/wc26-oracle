@@ -35,6 +35,31 @@
       "match": "D:1v2",
       "home": 4,
       "away": 1
+    },
+    {
+      "match": "D:3v4",
+      "home": 2,
+      "away": 0
+    },
+    {
+      "match": "E:1v2",
+      "home": 7,
+      "away": 1
+    },
+    {
+      "match": "E:3v4",
+      "home": 1,
+      "away": 0
+    },
+    {
+      "match": "F:1v2",
+      "home": 2,
+      "away": 2
+    },
+    {
+      "match": "F:3v4",
+      "home": 5,
+      "away": 1
     }
   ]
 }
