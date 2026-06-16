@@ -558,7 +558,17 @@ fn fixtures_section(data: &Data, cfg: &Config, schedule: &HashMap<String, String
                 let (gh, gv) = expected_goals(data, cfg, home, away);
                 let xg = format!("<span class=\"xg\">xG {gh:.1}–{gv:.1}</span>");
                 let inner = match data.results.get(&id) {
-                    Some(r) => format!("<span class=\"real\">{}–{} ✓</span>{xg}", r.home, r.away),
+                    Some(r) => {
+                        // mark = direction (win/draw/loss) of the rounded xG vs the real result
+                        let pred = (gh.round() as i64).cmp(&(gv.round() as i64));
+                        let actual = r.home.cmp(&r.away);
+                        let mark = if pred == actual {
+                            "<span class=\"hit\">✓</span>"
+                        } else {
+                            "<span class=\"miss\">✗</span>"
+                        };
+                        format!("<span class=\"real\">{}–{} {mark}</span>{xg}", r.home, r.away)
+                    }
                     None => xg,
                 };
                 let score = format!("<div class=\"two\">{inner}</div>");

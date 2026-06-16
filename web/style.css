@@ -243,7 +243,9 @@ td.ht { color: var(--text); }
 .analysis .sc { text-align: center; font-weight: 600; }
 .analysis .sc.done { color: var(--accent); }
 .analysis .sc .two { display: flex; flex-direction: column; align-items: center; line-height: 1.2; }
-.analysis .sc .real { color: var(--accent); font-weight: 600; white-space: nowrap; }
+.analysis .sc .real { color: var(--text); font-weight: 600; white-space: nowrap; }
+.analysis .sc .hit { color: var(--accent); }
+.analysis .sc .miss { color: var(--down); }
 .analysis .sc .xg { color: var(--muted); font-weight: 400; font-size: .72rem; white-space: nowrap; }
 .analysis .pa, .analysis th.pa { font-weight: 600; }
 .sub.empty { padding: 1.2rem 0; }
