@@ -60,6 +60,26 @@
       "match": "F:3v4",
       "home": 5,
       "away": 1
+    },
+    {
+      "match": "G:1v2",
+      "home": 1,
+      "away": 1
+    },
+    {
+      "match": "G:3v4",
+      "home": 2,
+      "away": 2
+    },
+    {
+      "match": "H:1v2",
+      "home": 0,
+      "away": 0
+    },
+    {
+      "match": "H:3v4",
+      "home": 1,
+      "away": 1
     }
   ]
 }
