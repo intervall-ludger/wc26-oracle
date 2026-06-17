@@ -80,6 +80,21 @@
       "match": "H:3v4",
       "home": 1,
       "away": 1
+    },
+    {
+      "match": "I:1v2",
+      "home": 3,
+      "away": 1
+    },
+    {
+      "match": "I:3v4",
+      "home": 1,
+      "away": 4
+    },
+    {
+      "match": "J:1v2",
+      "home": 3,
+      "away": 0
     }
   ]
 }
