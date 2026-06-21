@@ -77,8 +77,18 @@
       "away": 0
     },
     {
+      "match": "D:4v2",
+      "home": 0,
+      "away": 1
+    },
+    {
       "match": "E:1v2",
       "home": 7,
+      "away": 1
+    },
+    {
+      "match": "E:1v3",
+      "home": 2,
       "away": 1
     },
     {
@@ -87,9 +97,19 @@
       "away": 0
     },
     {
+      "match": "E:4v2",
+      "home": 0,
+      "away": 0
+    },
+    {
       "match": "F:1v2",
       "home": 2,
       "away": 2
+    },
+    {
+      "match": "F:1v3",
+      "home": 5,
+      "away": 1
     },
     {
       "match": "F:3v4",
