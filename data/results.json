@@ -192,9 +192,19 @@
       "away": 0
     },
     {
+      "match": "G:2v3",
+      "home": 1,
+      "away": 1
+    },
+    {
       "match": "G:3v4",
       "home": 2,
       "away": 2
+    },
+    {
+      "match": "G:4v1",
+      "home": 1,
+      "away": 5
     },
     {
       "match": "G:4v2",
@@ -292,9 +302,19 @@
       "away": 0
     },
     {
+      "match": "K:2v3",
+      "home": 3,
+      "away": 1
+    },
+    {
       "match": "K:3v4",
       "home": 1,
       "away": 3
+    },
+    {
+      "match": "K:4v1",
+      "home": 0,
+      "away": 0
     },
     {
       "match": "K:4v2",
@@ -312,9 +332,19 @@
       "away": 0
     },
     {
+      "match": "L:2v3",
+      "home": 2,
+      "away": 1
+    },
+    {
       "match": "L:3v4",
       "home": 1,
       "away": 0
+    },
+    {
+      "match": "L:4v1",
+      "home": 0,
+      "away": 2
     },
     {
       "match": "L:4v2",
