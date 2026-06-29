@@ -1,6 +1,6 @@
-use crate::bracket::{group_match_id, knockout, third_slots, GROUP_FIXTURES, Source};
+use crate::bracket::{group_match_id, knockout, Source, GROUP_FIXTURES};
 use crate::model::Data;
-use crate::sim::{match_odds, match_thirds, real_group_standings, real_thirds_order, Config, Odds};
+use crate::sim::{match_odds, real_group_standings, real_thirds_order, Config, Odds};
 use std::collections::HashMap;
 
 pub struct Played {
@@ -29,7 +29,9 @@ impl Played {
             std::cmp::Ordering::Less => (0.0, 0.0, 1.0),
             std::cmp::Ordering::Equal => (0.0, 1.0, 0.0),
         };
-        (self.odds.home - oh).powi(2) + (self.odds.draw - od).powi(2) + (self.odds.away - oa).powi(2)
+        (self.odds.home - oh).powi(2)
+            + (self.odds.draw - od).powi(2)
+            + (self.odds.away - oa).powi(2)
     }
 }
 
@@ -70,12 +72,15 @@ pub fn played_matches(data: &Data, cfg: &Config) -> Vec<Played> {
 
     let third_team_for_match: HashMap<u32, usize> = match real_thirds_order(data) {
         Some(order) => {
-            let assigned = match_thirds(&order, &third_slots());
+            let assigned = crate::third_table::assign_thirds(&order);
             let third_idx: HashMap<char, usize> = order
                 .iter()
                 .map(|&g| (g, real_group_standings(data, g).unwrap()[2]))
                 .collect();
-            assigned.into_iter().map(|(mid, g)| (mid, third_idx[&g])).collect()
+            assigned
+                .into_iter()
+                .map(|(mid, g)| (mid, third_idx[&g]))
+                .collect()
         }
         None => HashMap::new(),
     };
@@ -95,7 +100,7 @@ pub fn played_matches(data: &Data, cfg: &Config) -> Vec<Played> {
                 Source::Winner(g) => winners.get(g).copied(),
                 Source::RunnerUp(g) => runners.get(g).copied(),
                 Source::MatchWinner(n) => won.get(n).copied(),
-                Source::Third(_) => third_team_for_match.get(&km.id).copied(),
+                Source::Third => third_team_for_match.get(&km.id).copied(),
             }
         };
         let (Some(home), Some(away)) = (resolve(&km.a), resolve(&km.b)) else {
@@ -104,7 +109,11 @@ pub fn played_matches(data: &Data, cfg: &Config) -> Vec<Played> {
         let id = format!("M{}", km.id);
         if let Some(r) = data.results.get(&id) {
             let w = if r.home != r.away {
-                if r.home > r.away { home } else { away }
+                if r.home > r.away {
+                    home
+                } else {
+                    away
+                }
             } else {
                 match r.winner.as_deref() {
                     Some("away") => away,
@@ -149,12 +158,15 @@ pub fn determined_matches(data: &Data) -> Vec<(String, usize, usize)> {
         .collect();
     let third_team_for_match: HashMap<u32, usize> = match real_thirds_order(data) {
         Some(order) => {
-            let assigned = match_thirds(&order, &third_slots());
+            let assigned = crate::third_table::assign_thirds(&order);
             let third_idx: HashMap<char, usize> = order
                 .iter()
                 .map(|&g| (g, real_group_standings(data, g).unwrap()[2]))
                 .collect();
-            assigned.into_iter().map(|(mid, g)| (mid, third_idx[&g])).collect()
+            assigned
+                .into_iter()
+                .map(|(mid, g)| (mid, third_idx[&g]))
+                .collect()
         }
         None => HashMap::new(),
     };
@@ -166,7 +178,7 @@ pub fn determined_matches(data: &Data) -> Vec<(String, usize, usize)> {
                 Source::Winner(g) => winners.get(g).copied(),
                 Source::RunnerUp(g) => runners.get(g).copied(),
                 Source::MatchWinner(n) => won.get(n).copied(),
-                Source::Third(_) => third_team_for_match.get(&km.id).copied(),
+                Source::Third => third_team_for_match.get(&km.id).copied(),
             }
         };
         let (Some(home), Some(away)) = (resolve(&km.a), resolve(&km.b)) else {
@@ -175,7 +187,11 @@ pub fn determined_matches(data: &Data) -> Vec<(String, usize, usize)> {
         let id = format!("M{}", km.id);
         if let Some(r) = data.results.get(&id) {
             let w = if r.home != r.away {
-                if r.home > r.away { home } else { away }
+                if r.home > r.away {
+                    home
+                } else {
+                    away
+                }
             } else {
                 match r.winner.as_deref() {
                     Some("away") => away,

@@ -102,7 +102,14 @@ impl Tally {
 fn elo_adj(data: &Data, cfg: &Config, dynv: &[f64], team: usize) -> f64 {
     let t = &data.teams[team];
     let dynamic = dynv.get(team).copied().unwrap_or(0.0);
-    t.elo + cfg.form_weight * t.form + dynamic + if data.is_host(team) { cfg.home_adv } else { 0.0 }
+    t.elo
+        + cfg.form_weight * t.form
+        + dynamic
+        + if data.is_host(team) {
+            cfg.home_adv
+        } else {
+            0.0
+        }
 }
 
 /// Expected goals (lambda) for both sides of a fixture.
@@ -119,7 +126,8 @@ fn bump_dyn(data: &Data, cfg: &Config, dynv: &mut [f64], a: usize, b: usize, ga:
     if cfg.dyn_k <= 0.0 || dynv.is_empty() {
         return;
     }
-    let we = 1.0 / (1.0 + 10f64.powf((elo_adj(data, cfg, dynv, b) - elo_adj(data, cfg, dynv, a)) / 400.0));
+    let we = 1.0
+        / (1.0 + 10f64.powf((elo_adj(data, cfg, dynv, b) - elo_adj(data, cfg, dynv, a)) / 400.0));
     let s = match ga.cmp(&gb) {
         std::cmp::Ordering::Greater => 1.0,
         std::cmp::Ordering::Less => 0.0,
@@ -154,7 +162,11 @@ pub fn match_odds(data: &Data, cfg: &Config, a: usize, b: usize) -> Odds {
         }
     }
     let z = ph + pd + pa;
-    Odds { home: ph / z, draw: pd / z, away: pa / z }
+    Odds {
+        home: ph / z,
+        draw: pd / z,
+        away: pa / z,
+    }
 }
 
 fn factorial(k: i32) -> f64 {
@@ -167,7 +179,15 @@ pub fn expected_goals(data: &Data, cfg: &Config, a: usize, b: usize) -> (f64, f6
 }
 
 /// Sample (or look up actual) score, Dixon-Coles adjusted via rejection sampling.
-fn play(data: &Data, cfg: &Config, dynv: &[f64], a: usize, b: usize, id: &str, rng: &mut impl Rng) -> (u32, u32) {
+fn play(
+    data: &Data,
+    cfg: &Config,
+    dynv: &[f64],
+    a: usize,
+    b: usize,
+    id: &str,
+    rng: &mut impl Rng,
+) -> (u32, u32) {
     if let Some(r) = data.results.get(id) {
         return (r.home, r.away);
     }
@@ -196,10 +216,22 @@ fn play(data: &Data, cfg: &Config, dynv: &[f64], a: usize, b: usize, id: &str, r
 }
 
 /// Knockout: winner + score; draws settled by an elo-weighted shootout.
-fn play_ko(data: &Data, cfg: &Config, dynv: &[f64], a: usize, b: usize, id: &str, rng: &mut impl Rng) -> (usize, u32, u32) {
+fn play_ko(
+    data: &Data,
+    cfg: &Config,
+    dynv: &[f64],
+    a: usize,
+    b: usize,
+    id: &str,
+    rng: &mut impl Rng,
+) -> (usize, u32, u32) {
     if let Some(r) = data.results.get(id) {
         let w = if r.home != r.away {
-            if r.home > r.away { a } else { b }
+            if r.home > r.away {
+                a
+            } else {
+                b
+            }
         } else {
             match r.winner.as_deref() {
                 Some("away") => b,
@@ -212,7 +244,8 @@ fn play_ko(data: &Data, cfg: &Config, dynv: &[f64], a: usize, b: usize, id: &str
     if ga != gb {
         return (if ga > gb { a } else { b }, ga, gb);
     }
-    let we = 1.0 / (1.0 + 10f64.powf((elo_adj(data, cfg, dynv, b) - elo_adj(data, cfg, dynv, a)) / 400.0));
+    let we = 1.0
+        / (1.0 + 10f64.powf((elo_adj(data, cfg, dynv, b) - elo_adj(data, cfg, dynv, a)) / 400.0));
     (if rng.gen::<f64>() < we { a } else { b }, ga, gb)
 }
 
@@ -224,11 +257,18 @@ struct Standing {
     tie: f64,
 }
 
-fn simulate_group(data: &Data, cfg: &Config, dynv: &mut Vec<f64>, g: char, rng: &mut impl Rng) -> Vec<Standing> {
+fn simulate_group(
+    data: &Data,
+    cfg: &Config,
+    dynv: &mut Vec<f64>,
+    g: char,
+    rng: &mut impl Rng,
+) -> Vec<Standing> {
     let teams = data.group_teams(g);
     let mut pts = [0u32; 4];
     let mut gf = [0i32; 4];
     let mut ga = [0i32; 4];
+    let mut scored = [[0i32; 4]; 4];
 
     for &(hp, ap) in GROUP_FIXTURES.iter() {
         let (hi, ai) = (hp - 1, ap - 1);
@@ -239,6 +279,8 @@ fn simulate_group(data: &Data, cfg: &Config, dynv: &mut Vec<f64>, g: char, rng: 
         ga[hi] += gv as i32;
         gf[ai] += gv as i32;
         ga[ai] += gh as i32;
+        scored[hi][ai] = gh as i32;
+        scored[ai][hi] = gv as i32;
         match gh.cmp(&gv) {
             std::cmp::Ordering::Greater => pts[hi] += 3,
             std::cmp::Ordering::Less => pts[ai] += 3,
@@ -249,58 +291,112 @@ fn simulate_group(data: &Data, cfg: &Config, dynv: &mut Vec<f64>, g: char, rng: 
         }
     }
 
-    let mut table: Vec<Standing> = (0..4)
+    let elo = [
+        data.teams[teams[0]].elo,
+        data.teams[teams[1]].elo,
+        data.teams[teams[2]].elo,
+        data.teams[teams[3]].elo,
+    ];
+    // only used if two teams share identical Elo; random keeps such ties unbiased across sims
+    let last_resort = [rng.gen(), rng.gen(), rng.gen(), rng.gen()];
+    rank_group(&pts, &gf, &ga, &scored, &elo, &last_resort)
+        .into_iter()
         .map(|i| Standing {
             team: teams[i],
             pts: pts[i],
             gd: gf[i] - ga[i],
             gf: gf[i],
-            tie: rng.gen::<f64>(),
+            tie: 0.0,
         })
-        .collect();
-    table.sort_by(|x, y| {
-        y.pts
-            .cmp(&x.pts)
-            .then(y.gd.cmp(&x.gd))
-            .then(y.gf.cmp(&x.gf))
-            .then(y.tie.partial_cmp(&x.tie).unwrap())
-    });
-    table
+        .collect()
 }
 
-/// Assign the qualified third-placed groups to bracket slots (perfect matching).
-pub fn match_thirds(third_groups: &[char], slots: &[(u32, &'static [char])]) -> Vec<(u32, char)> {
-    let mut assignment = vec![None; slots.len()];
-    let mut used = vec![false; third_groups.len()];
-    fn solve(
-        s: usize,
-        slots: &[(u32, &'static [char])],
-        thirds: &[char],
-        used: &mut [bool],
-        assignment: &mut [Option<char>],
-    ) -> bool {
-        if s == slots.len() {
-            return true;
+/// Rank the four teams of a group by the FIFA 2026 criteria: total points, then head-to-head
+/// (points, goal difference, goals among the teams still level), then overall goal difference,
+/// overall goals, FIFA World Ranking (approximated by Elo). Fair play is skipped (no card data).
+/// `last_resort` only separates teams with identical Elo, which the real rules never reach.
+/// Returns the local indices 0..4 best to worst.
+fn rank_group(
+    pts: &[u32; 4],
+    gf: &[i32; 4],
+    ga: &[i32; 4],
+    scored: &[[i32; 4]; 4],
+    elo: &[f64; 4],
+    last_resort: &[f64; 4],
+) -> Vec<usize> {
+    let mut idx = [0usize, 1, 2, 3];
+    idx.sort_by(|&a, &b| pts[b].cmp(&pts[a]));
+    let mut out = Vec::with_capacity(4);
+    let mut i = 0;
+    while i < 4 {
+        let mut j = i + 1;
+        while j < 4 && pts[idx[j]] == pts[idx[i]] {
+            j += 1;
         }
-        for (j, &g) in thirds.iter().enumerate() {
-            if !used[j] && slots[s].1.contains(&g) {
-                used[j] = true;
-                assignment[s] = Some(g);
-                if solve(s + 1, slots, thirds, used, assignment) {
-                    return true;
-                }
-                used[j] = false;
-                assignment[s] = None;
+        resolve_block(&idx[i..j], gf, ga, scored, elo, last_resort, &mut out);
+        i = j;
+    }
+    out
+}
+
+/// Order a block of teams that are all level on total points. Applies the head-to-head mini-table
+/// among the block; teams it cannot separate fall through to overall goal difference, overall
+/// goals, World Ranking (Elo) and finally `last_resort`. The head-to-head is re-applied to any
+/// still-tied sub-block (FIFA's recursive criterion).
+fn resolve_block(
+    block: &[usize],
+    gf: &[i32; 4],
+    ga: &[i32; 4],
+    scored: &[[i32; 4]; 4],
+    elo: &[f64; 4],
+    last_resort: &[f64; 4],
+    out: &mut Vec<usize>,
+) {
+    if block.len() == 1 {
+        out.push(block[0]);
+        return;
+    }
+    // head-to-head key (points, goal diff, goals) counting only matches within the block
+    let h2h = |t: usize| -> (i32, i32, i32) {
+        let (mut p, mut sf, mut sa) = (0, 0, 0);
+        for &o in block {
+            if o != t {
+                let (a, b) = (scored[t][o], scored[o][t]);
+                sf += a;
+                sa += b;
+                p += match a.cmp(&b) {
+                    std::cmp::Ordering::Greater => 3,
+                    std::cmp::Ordering::Equal => 1,
+                    std::cmp::Ordering::Less => 0,
+                };
             }
         }
-        false
+        (p, sf - sa, sf)
+    };
+    let mut order = block.to_vec();
+    order.sort_by(|&a, &b| h2h(b).cmp(&h2h(a)));
+    let mut i = 0;
+    while i < order.len() {
+        let mut j = i + 1;
+        while j < order.len() && h2h(order[j]) == h2h(order[i]) {
+            j += 1;
+        }
+        if j - i == block.len() {
+            // head-to-head separated nothing; fall through to the remaining FIFA criteria
+            let mut tail = order[i..j].to_vec();
+            tail.sort_by(|&a, &b| {
+                (gf[b] - ga[b])
+                    .cmp(&(gf[a] - ga[a]))
+                    .then(gf[b].cmp(&gf[a]))
+                    .then(elo[b].partial_cmp(&elo[a]).unwrap())
+                    .then(last_resort[b].partial_cmp(&last_resort[a]).unwrap())
+            });
+            out.extend(tail);
+        } else {
+            resolve_block(&order[i..j], gf, ga, scored, elo, last_resort, out);
+        }
+        i = j;
     }
-    solve(0, slots, third_groups, &mut used, &mut assignment);
-    slots
-        .iter()
-        .zip(assignment)
-        .map(|((id, _), g)| (*id, g.expect("no valid third-place assignment")))
-        .collect()
 }
 
 /// Final group order from real results only. None if not all 6 games are played.
@@ -310,6 +406,7 @@ pub fn real_group_standings(data: &Data, g: char) -> Option<[usize; 4]> {
     let mut pts = [0u32; 4];
     let mut gf = [0i32; 4];
     let mut ga = [0i32; 4];
+    let mut scored = [[0i32; 4]; 4];
     for &(hp, ap) in GROUP_FIXTURES.iter() {
         let id = group_match_id(g, hp, ap);
         let r = data.results.get(&id)?;
@@ -318,6 +415,8 @@ pub fn real_group_standings(data: &Data, g: char) -> Option<[usize; 4]> {
         ga[hi] += r.away as i32;
         gf[ai] += r.away as i32;
         ga[ai] += r.home as i32;
+        scored[hi][ai] = r.home as i32;
+        scored[ai][hi] = r.away as i32;
         match r.home.cmp(&r.away) {
             std::cmp::Ordering::Greater => pts[hi] += 3,
             std::cmp::Ordering::Less => pts[ai] += 3,
@@ -327,21 +426,27 @@ pub fn real_group_standings(data: &Data, g: char) -> Option<[usize; 4]> {
             }
         }
     }
-    let mut order: Vec<usize> = (0..4).collect();
-    order.sort_by(|&x, &y| {
-        pts[y]
-            .cmp(&pts[x])
-            .then((gf[y] - ga[y]).cmp(&(gf[x] - ga[x])))
-            .then(gf[y].cmp(&gf[x]))
-            .then(x.cmp(&y))
-    });
-    Some([teams[order[0]], teams[order[1]], teams[order[2]], teams[order[3]]])
+    let elo = [
+        data.teams[teams[0]].elo,
+        data.teams[teams[1]].elo,
+        data.teams[teams[2]].elo,
+        data.teams[teams[3]].elo,
+    ];
+    // locked table stays deterministic: on identical Elo, the lower draw position ranks higher
+    let last_resort = [-0.0, -1.0, -2.0, -3.0];
+    let order = rank_group(&pts, &gf, &ga, &scored, &elo, &last_resort);
+    Some([
+        teams[order[0]],
+        teams[order[1]],
+        teams[order[2]],
+        teams[order[3]],
+    ])
 }
 
 /// The 8 best third-placed groups (in ranking order) from real results.
 /// None unless all 12 groups are complete.
 pub fn real_thirds_order(data: &Data) -> Option<Vec<char>> {
-    let mut thirds: Vec<(char, u32, i32, i32)> = Vec::with_capacity(12);
+    let mut thirds: Vec<(char, u32, i32, i32, f64)> = Vec::with_capacity(12);
     for g in all_groups() {
         let teams = data.group_teams(g);
         let mut pts = [0u32; 4];
@@ -365,10 +470,16 @@ pub fn real_thirds_order(data: &Data) -> Option<Vec<char>> {
         }
         let third = real_group_standings(data, g)?[2];
         let i = teams.iter().position(|&t| t == third).unwrap();
-        let _ = teams;
-        thirds.push((g, pts[i], gf[i] - ga[i], gf[i]));
+        thirds.push((g, pts[i], gf[i] - ga[i], gf[i], data.teams[third].elo));
     }
-    thirds.sort_by(|a, b| b.1.cmp(&a.1).then(b.2.cmp(&a.2)).then(b.3.cmp(&a.3)).then(a.0.cmp(&b.0)));
+    // third-placed ranking: points, goal diff, goals, world ranking (Elo), then group letter
+    thirds.sort_by(|a, b| {
+        b.1.cmp(&a.1)
+            .then(b.2.cmp(&a.2))
+            .then(b.3.cmp(&a.3))
+            .then(b.4.partial_cmp(&a.4).unwrap())
+            .then(a.0.cmp(&b.0))
+    });
     thirds.truncate(8);
     Some(thirds.into_iter().map(|t| t.0).collect())
 }
@@ -380,7 +491,11 @@ pub fn simulate_tournament(data: &Data, cfg: &Config, tally: &mut Tally, rng: &m
     let mut runners: HashMap<char, usize> = HashMap::new();
     let mut thirds: Vec<Standing> = Vec::with_capacity(12);
     // per-tournament dynamic-Elo deltas (empty if dynamic Elo is disabled)
-    let mut dynv: Vec<f64> = if cfg.dyn_k > 0.0 { vec![0.0; data.teams.len()] } else { Vec::new() };
+    let mut dynv: Vec<f64> = if cfg.dyn_k > 0.0 {
+        vec![0.0; data.teams.len()]
+    } else {
+        Vec::new()
+    };
 
     for g in all_groups() {
         let table = simulate_group(data, cfg, &mut dynv, g, rng);
@@ -401,12 +516,19 @@ pub fn simulate_tournament(data: &Data, cfg: &Config, tally: &mut Tally, rng: &m
         });
     }
 
-    // rank the 12 third-placed teams, take the best 8
+    // rank the 12 third-placed teams, take the best 8: points, goal diff, goals, World Ranking
+    // (Elo proxy); fair play is skipped, the random `tie` only splits identical-Elo teams
     thirds.sort_by(|x, y| {
         y.pts
             .cmp(&x.pts)
             .then(y.gd.cmp(&x.gd))
             .then(y.gf.cmp(&x.gf))
+            .then(
+                data.teams[y.team]
+                    .elo
+                    .partial_cmp(&data.teams[x.team].elo)
+                    .unwrap(),
+            )
             .then(y.tie.partial_cmp(&x.tie).unwrap())
     });
     thirds.truncate(8);
@@ -419,7 +541,7 @@ pub fn simulate_tournament(data: &Data, cfg: &Config, tally: &mut Tally, rng: &m
     }
 
     let third_groups: Vec<char> = third_group_of.keys().copied().collect();
-    let assigned = match_thirds(&third_groups, &third_slots());
+    let assigned = crate::third_table::assign_thirds(&third_groups);
     let third_team_for_match: HashMap<u32, usize> = assigned
         .into_iter()
         .map(|(mid, g)| (mid, third_group_of[&g]))
@@ -430,18 +552,18 @@ pub fn simulate_tournament(data: &Data, cfg: &Config, tally: &mut Tally, rng: &m
             Source::Winner(g) => winners[g],
             Source::RunnerUp(g) => runners[g],
             Source::MatchWinner(n) => won[n],
-            Source::Third(_) => unreachable!("third resolved per match id"),
+            Source::Third => unreachable!("third resolved per match id"),
         }
     };
 
     let mut won: HashMap<u32, usize> = HashMap::new();
     for km in knockout() {
         let a = match km.a {
-            Source::Third(_) => third_team_for_match[&km.id],
+            Source::Third => third_team_for_match[&km.id],
             ref s => resolve(s, &won),
         };
         let b = match km.b {
-            Source::Third(_) => third_team_for_match[&km.id],
+            Source::Third => third_team_for_match[&km.id],
             ref s => resolve(s, &won),
         };
         let id = format!("M{}", km.id);

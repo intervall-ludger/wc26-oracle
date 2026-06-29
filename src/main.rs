@@ -4,6 +4,7 @@ mod history;
 mod model;
 mod report;
 mod sim;
+mod third_table;
 
 use model::Data;
 use rand::SeedableRng;
@@ -33,7 +34,9 @@ fn has_flag(flag: &str) -> bool {
 }
 
 fn main() {
-    let sims: u64 = arg_value("--sims", "200000").parse().expect("invalid --sims");
+    let sims: u64 = arg_value("--sims", "200000")
+        .parse()
+        .expect("invalid --sims");
     let teams_path = arg_value("--teams", "data/teams.json");
     let results_path = arg_value("--results", "data/results.json");
     let out_path = arg_value("--out", "web/index.html");
