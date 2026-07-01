@@ -374,9 +374,27 @@
       "decided": "pens"
     },
     {
+      "match": "M75",
+      "home": 3,
+      "away": 4,
+      "decided": "pens"
+    },
+    {
       "match": "M76",
       "home": 2,
       "away": 1,
+      "decided": "90"
+    },
+    {
+      "match": "M77",
+      "home": 3,
+      "away": 0,
+      "decided": "90"
+    },
+    {
+      "match": "M78",
+      "home": 1,
+      "away": 2,
       "decided": "90"
     }
   ]
