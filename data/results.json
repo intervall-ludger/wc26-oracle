@@ -492,6 +492,18 @@
       "home": 1,
       "away": 4,
       "decided": "90"
+    },
+    {
+      "match": "M95",
+      "home": 3,
+      "away": 2,
+      "decided": "90"
+    },
+    {
+      "match": "M96",
+      "home": 4,
+      "away": 3,
+      "decided": "pens"
     }
   ]
 }
