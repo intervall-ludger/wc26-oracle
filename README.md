@@ -2,7 +2,8 @@
 
 A simulator for the 2026 World Cup. It plays the whole tournament out hundreds of thousands of times
 and turns that into one clear picture: how likely each of the 48 teams is to top its group, reach each
-knockout round, and win the trophy. Every day it pulls in the real results so far and updates itself.
+knockout round, and win the trophy. Through the tournament it pulled in the real results every day and
+updated itself.
 
 **Live site:** https://intervall-ludger.github.io/wc26-oracle
 
@@ -27,10 +28,17 @@ The page has six tabs:
 - **Fixtures**: the most probable scoreline for every group match.
 - **Accuracy**: predictions against reality, with a score for how well the model did and the biggest upsets it missed.
 
-## Staying current
+## Tournament over
 
-A GitHub Action runs once a day. It pulls finished matches from the free football-data.org tier,
-re-runs the simulation, and republishes the page. No manual work during the tournament.
+Spain beat Argentina 1-0 after extra time on July 19, 2026. All 103 bracket matches are in
+`data/results.json`, the page shows the finished tournament, and the daily update has been switched
+off. The workflow still runs on push and on manual dispatch, so the site can be rebuilt at any time.
+
+How well the model actually did, match by match: [EVALUATION.md](EVALUATION.md). Short version: it had
+Spain as favorite before kickoff and its pre-tournament top four were exactly the four semifinalists.
+
+While the tournament was running, a GitHub Action pulled finished matches from the free
+football-data.org tier once a day, re-ran the simulation, and republished the page.
 
 ## Run it yourself
 

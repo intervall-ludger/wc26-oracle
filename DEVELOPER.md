@@ -15,7 +15,7 @@ src/
   analysis.rs   resolve played matches, predictions-vs-reality (Brier), --dump-schedule data
   history.rs    per-stage snapshots (the title-race timeline), dedup by results signature
   report.rs     renders the whole HTML report (tabs, tables, SVG bracket + chart, heat cells)
-  main.rs       CLI flags, wiring, --dump-schedule mode
+  main.rs       CLI flags, wiring, --dump-schedule / --dump-played modes
 data/
   teams.json    48 teams: code, group, draw position, elo, form (+ form notes)
   results.json  real results entered/auto-pulled so far
@@ -60,6 +60,7 @@ web/style.css        styles (report HTML is generated; index.html is gitignored)
 | `--dc-rho`       | `-0.10`              | Dixon-Coles low-score correlation (0 = off)      |
 | `--dyn-k`        | `8.0`                | In-tournament dynamic-Elo K-factor (0 = off)     |
 | `--dump-schedule`| (none)               | Print determined fixtures as JSON, then exit     |
+| `--dump-played`  | (none)               | Print played matches + pre-match odds as JSON, then exit |
 
 Tune without rebuilding: `cargo run --release -- --supremacy 0.0024 --form-weight 1.5`
 
@@ -100,7 +101,7 @@ in a gitignored `.env` (`FOOTBALL_DATA_KEY=...`).
 
 ## GitHub Actions (`.github/workflows/simulate.yml`)
 
-Runs on push, manual dispatch, and daily at 00:00 UTC: build → refresh → simulate → commit
+Runs on push and manual dispatch: build → refresh → simulate → commit
 `results.json`/`history.json` back (`[skip ci]`, so it doesn't re-trigger) → deploy to Pages.
 
 One-time repo setup:

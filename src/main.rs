@@ -67,6 +67,29 @@ fn main() {
         return;
     }
 
+    // Emit every played match with the model's pre-match odds as JSON (used for scoring), then exit.
+    if has_flag("--dump-played") {
+        let mut items = Vec::new();
+        for m in analysis::played_matches(&data, &cfg) {
+            let (xh, xa) = sim::expected_goals(&data, &cfg, m.home, m.away);
+            items.push(format!(
+                "{{\"stage\":\"{}\",\"home\":\"{}\",\"away\":\"{}\",\"gh\":{},\"ga\":{},\"ph\":{:.6},\"pd\":{:.6},\"pa\":{:.6},\"xh\":{:.4},\"xa\":{:.4}}}",
+                m.stage,
+                data.teams[m.home].code,
+                data.teams[m.away].code,
+                m.gh,
+                m.ga,
+                m.odds.home,
+                m.odds.draw,
+                m.odds.away,
+                xh,
+                xa
+            ));
+        }
+        println!("[{}]", items.join(","));
+        return;
+    }
+
     let mut tally = Tally::new(data.teams.len());
     let mut rng = rand::rngs::StdRng::seed_from_u64(20260611);
 
